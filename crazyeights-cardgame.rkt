@@ -10,19 +10,27 @@
 (define card3 (make-card 'hearts 3))
 (define card4 (make-card 'hearts 2))
 (define card5 (make-card 'clubs 11))
+;; A wild-card is a card with value 8
 (define wild-points 50)
+;; A face card is a Jack(represented by value 10), Queen (represented by value 11) or King (represented by value 13)
 (define face-card-points 10)
 (define crazy-value 8)
-(define crazynumber 8)
 ;;****************************************************
 ;; (crazy-count list center) consumes a list of cards and the center card, and produces the number
 ;;  of cards that can be played.
 ;; crazy-count: (listof Card) Card -> Num
+;; Examples:
+(check-expect (crazy-count (cons card1 (cons card2 (cons card3 empty)))card4)3)
+
 (define (crazy-count list center)
   (length (filter
            (lambda (card)
              (or (= crazy-value (card-value card)) (= (card-value card) (card-value center))
                  (symbol=? (card-suit card) (card-suit center))))list)))
+
+;; Tests:
+(check-expect (crazy-count (cons card1 (cons card2 (cons card3 empty)))card5)1)
+(check-expect (crazy-count (cons (make-card 'spades 8) empty) (make-card 'diamonds 2))1)
 ;; ***************************************************
 ;; (crazy-dumb list center) consumes a list of cards and the center card
 ;;   and produces the first playable card in the list consumed, if exists. Else it produces false.
@@ -36,10 +44,14 @@
     (cond
       [(cons? lo-playable-card) (first lo-playable-card)]
       [else false])))
-
+;; Tests:
+(check-expect (crazy-dumb empty card3 )false)
+(check-expect (crazy-dumb (list card2 card3) card5)false)
+(check-expect(crazy-dumb (cons (make-card 'spades 8) (cons (make-card 'hearts 3) empty))
+                         (make-card 'hearts 1))(make-card 'spades 8))
 ;; ***************************************************
-;; (smart-card? list center) checks if there's a card in the list that matches
-;;   the center card in suit or value
+;; (smart-card? list center) produces true if there's a card in the list that matches
+;;   the center card in suit or value, else produces false 
 ;; smart-card?: (listof Card) Card -> Bool
 ;; Examples: 
 (check-expect (smart-card? (cons (make-card 'hearts 4) empty) (make-card 'spades 4))true)
